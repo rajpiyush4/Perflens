@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  url         String
+  environment String   @default("production")
+  audits      Audit[]
+  alerts      Alert[]
+  createdAt   DateTime @default(now())
+}
+
+enum AuditStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model Audit {
+  id                 String          @id @default(cuid())
+  projectId          String
+  project            Project         @relation(fields: [projectId], references: [id])
+  status             AuditStatus     @default(PENDING)
+  performanceScore   Int?
+  seoScore           Int?
+  accessibilityScore Int?
+  bestPracticesScore Int?
+  webVitals          WebVitals?
+  bundleAnalysis     BundleAnalysis?
+  createdAt          DateTime        @default(now())
+}
+
+model WebVitals {
+  id      String @id @default(cuid())
+  auditId String @unique
+  audit   Audit  @relation(fields: [auditId], references: [id])
+  lcp     Float?
+  cls     Float?
+  inp     Float?
+  tti     Float?
+  fcp     Float?
+  tbt     Float?
+}
+
+model BundleAnalysis {
+  id                String @id @default(cuid())
+  auditId           String @unique
+  audit             Audit  @relation(fields: [auditId], references: [id])
+  totalJsSize       Int?
+  vendorSize        Int?
+  largestDependency String?
+  duplicatePackages String? // Store as JSON string or relation
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  type      String
+  threshold Float
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

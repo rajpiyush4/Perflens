@@ -1,0 +1,27 @@
+{
+  "name": "perflens",
+  "private": true,
+  "description": "Frontend Performance Analytics & Benchmarking Platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "keywords": [
+    "lighthouse",
+    "performance",
+    "analytics",
+    "observability",
+    "nextjs",
+    "nestjs"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "devDependencies": {
+    "prisma": "^7.8.0"
+  }
+}
