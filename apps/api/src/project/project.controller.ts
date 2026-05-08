@@ -19,4 +19,9 @@ export class ProjectController {
   findOne(@Param('id') id: string) {
     return this.projectService.findOne(id);
   }
+
+  @Get(':id/audits')
+  getAudits(@Param('id') id: string) {
+    return this.projectService.getAudits(id);
+  }
 }

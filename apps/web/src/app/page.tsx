@@ -1,166 +1,225 @@
+"use client";
+
 import React from "react";
 import { 
-  ArrowUpRight, 
+  Activity, 
+  Clock, 
+  Globe, 
   Zap, 
   ShieldCheck, 
   Search, 
-  Settings2,
+  AlertCircle,
   ExternalLink,
-  Clock,
-  Calendar
+  ChevronRight,
+  TrendingUp,
+  BarChart3
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { formatDistanceToNow } from "date-fns";
 
 export default function DashboardPage() {
+  const projectId = "cmovh88ta00011skl9lh700ir"; // Our seeded project
+
+  const { data: audits, isLoading } = useQuery({
+    queryKey: ["audits", projectId],
+    queryFn: async () => {
+      const response = await axios.get(`http://localhost:4000/projects/${projectId}/audits`);
+      return response.data;
+    },
+    refetchInterval: 5000, // Poll every 5 seconds
+  });
+
+  const latestAudit = audits?.find((a: any) => a.status === "COMPLETED") || audits?.[0];
+  const isRunning = audits?.some((a: any) => a.status === "PENDING" || a.status === "RUNNING");
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      {/* Project Header Card */}
-      <div className="glass-card rounded-2xl p-8 flex items-center justify-between overflow-hidden relative">
-        <div className="flex items-center gap-8 relative z-10">
-          <div className="w-48 h-32 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden">
-            <div className="text-[10px] text-zinc-500 font-mono">SITE PREVIEW</div>
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Status Alert if running */}
+      {isRunning && (
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3 animate-pulse">
+          <Activity className="w-5 h-5 text-blue-400" />
+          <p className="text-sm text-blue-100 font-medium">An audit is currently in progress. Results will update automatically.</p>
+        </div>
+      )}
+
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Performance Gauge */}
+        <div className="lg:col-span-1 glass-card rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+            <TrendingUp className="w-12 h-12" />
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">acme.com</h1>
-              <div className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
-            </div>
-            <div className="flex items-center gap-4 text-sm text-zinc-400">
-              <a href="https://acme.com" className="hover:text-white flex items-center gap-1.5 transition-colors">
-                https://acme.com <ExternalLink className="h-3 w-3" />
-              </a>
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" /> Last audit: 2 hours ago
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" /> Next audit: in 22 hours
-              </span>
+          <div className="text-sm font-semibold text-zinc-400 mb-6 uppercase tracking-widest">Performance Score</div>
+          <div className="relative w-48 h-48 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                cx="96" cy="96" r="88"
+                stroke="currentColor"
+                strokeWidth="12"
+                fill="transparent"
+                className="text-white/5"
+              />
+              <circle
+                cx="96" cy="96" r="88"
+                stroke="currentColor"
+                strokeWidth="12"
+                fill="transparent"
+                strokeDasharray={552}
+                strokeDashoffset={552 - (552 * (latestAudit?.performanceScore || 0)) / 100}
+                className="text-blue-500 transition-all duration-1000 ease-out"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-6xl font-bold gradient-text">{latestAudit?.performanceScore || "--"}</span>
+              <span className="text-xs text-zinc-500 font-medium">out of 100</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-12 pr-4 relative z-10">
-          <div className="text-center space-y-1">
-            <div className="relative h-24 w-24 flex items-center justify-center">
-              <svg className="h-full w-full -rotate-90">
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  fill="transparent"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  className="text-white/5"
-                />
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  fill="transparent"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  strokeDasharray="251.2"
-                  strokeDashoffset="20.1"
-                  className="text-green-500"
-                />
-              </svg>
-              <span className="absolute text-2xl font-bold">92</span>
-            </div>
-            <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Performance</div>
-          </div>
-
-          <div className="flex gap-8 border-l border-white/5 pl-12">
-            <div className="text-center">
-              <div className="text-2xl font-bold">24</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Audits</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">100%</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Uptime</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-medium text-zinc-400">Since Apr 10</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Monitored</div>
-            </div>
-          </div>
+        {/* Categories Grid */}
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MetricCard 
+            title="Accessibility" 
+            value={latestAudit?.accessibilityScore} 
+            icon={<ShieldCheck className="w-5 h-5" />} 
+            color="text-emerald-400" 
+            bgColor="bg-emerald-400/10"
+          />
+          <MetricCard 
+            title="Best Practices" 
+            value={latestAudit?.bestPracticesScore} 
+            icon={<Zap className="w-5 h-5" />} 
+            color="text-amber-400" 
+            bgColor="bg-amber-400/10"
+          />
+          <MetricCard 
+            title="SEO" 
+            value={latestAudit?.seoScore} 
+            icon={<Search className="w-5 h-5" />} 
+            color="text-purple-400" 
+            bgColor="bg-purple-400/10"
+          />
+          <MetricCard 
+            title="Avg. Response" 
+            value={latestAudit?.webVitals?.[0]?.tti ? `${(latestAudit.webVitals[0].tti / 1000).toFixed(1)}s` : "--"} 
+            icon={<Clock className="w-5 h-5" />} 
+            color="text-blue-400" 
+            bgColor="bg-blue-400/10"
+          />
         </div>
-        
-        {/* Decorative Gradient Background */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-600/10 to-transparent pointer-events-none" />
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <MetricCard label="LCP" value="1.2s" status="good" subtext="Largest Contentful Paint" />
-        <MetricCard label="INP" value="98ms" status="good" subtext="Interaction to Next Paint" />
-        <MetricCard label="CLS" value="0.04" status="good" subtext="Cumulative Layout Shift" />
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-card rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold flex items-center gap-2">
-              Performance Over Time <Settings2 className="h-4 w-4 text-zinc-500" />
-            </h3>
-            <select className="bg-white/5 border border-white/10 rounded-md text-xs px-2 py-1 outline-none">
-              <option>Last 30 Days</option>
-            </select>
+      {/* Detailed Metrics Table */}
+      <div className="glass-card rounded-3xl overflow-hidden border border-white/5">
+        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+              <BarChart3 className="w-5 h-5 text-blue-400" />
+            </div>
+            <h2 className="text-lg font-bold">Audit History</h2>
           </div>
-          <div className="h-64 w-full bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-zinc-500 text-sm italic">
-            Chart Placeholder (Recharts)
-          </div>
+          <button className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1 transition-colors">
+            View All <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-
-        <div className="glass-card rounded-2xl p-6 space-y-4">
-          <h3 className="font-bold">Recent Audits</h3>
-          <div className="space-y-3">
-            {[92, 89, 74, 91].map((score, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors group cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold border-2",
-                    score > 90 ? "border-green-500/50 text-green-500 bg-green-500/5" : 
-                    score > 80 ? "border-yellow-500/50 text-yellow-500 bg-yellow-500/5" :
-                    "border-red-500/50 text-red-500 bg-red-500/5"
-                  )}>
-                    {score}
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">May {19 - i}, 2025, 10:30 AM</div>
-                    <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{i === 0 ? '2 hours ago' : `${i} day ago`}</div>
-                  </div>
-                </div>
-                <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-white transition-colors" />
-              </div>
-            ))}
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-white/[0.02] text-zinc-500 text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-4 font-semibold">Date</th>
+                <th className="px-6 py-4 font-semibold">Status</th>
+                <th className="px-6 py-4 font-semibold text-center">Score</th>
+                <th className="px-6 py-4 font-semibold">LCP</th>
+                <th className="px-6 py-4 font-semibold">CLS</th>
+                <th className="px-6 py-4 font-semibold">TTI</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {audits?.map((audit: any) => (
+                <tr key={audit.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium">{formatDistanceToNow(new Date(audit.createdAt), { addSuffix: true })}</div>
+                    <div className="text-[10px] text-zinc-500 uppercase">Manual Trigger</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={audit.status} />
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`text-sm font-bold ${getScoreColor(audit.performanceScore)}`}>
+                      {audit.performanceScore || "--"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-zinc-400">
+                    {audit.webVitals?.[0]?.lcp ? `${(audit.webVitals[0].lcp / 1000).toFixed(2)}s` : "--"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-zinc-400">
+                    {audit.webVitals?.[0]?.cls ? audit.webVitals[0].cls.toFixed(3) : "--"}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-zinc-400">
+                        {audit.webVitals?.[0]?.tti ? `${(audit.webVitals[0].tti / 1000).toFixed(1)}s` : "--"}
+                      </span>
+                      <ExternalLink className="w-4 h-4 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value, status, subtext }: { label: string, value: string, status: string, subtext: string }) {
+function MetricCard({ title, value, icon, color, bgColor }: any) {
   return (
-    <div className="glass-card rounded-2xl p-6 space-y-4 hover:border-white/20 transition-all group">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{label}</span>
-        <div className="h-6 w-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-[10px] font-bold text-green-500">
-          Good
+    <div className="glass-card rounded-2xl p-6 flex items-center justify-between group hover:border-white/10 transition-all">
+      <div className="flex items-center gap-4">
+        <div className={`p-3 ${bgColor} rounded-xl group-hover:scale-110 transition-transform`}>
+          {React.cloneElement(icon, { className: `${icon.props.className} ${color}` })}
+        </div>
+        <div>
+          <div className="text-sm font-medium text-zinc-400">{title}</div>
+          <div className="text-2xl font-bold">{value || "--"}</div>
         </div>
       </div>
-      <div className="space-y-1">
-        <div className="text-3xl font-bold">{value}</div>
-        <div className="text-xs text-zinc-500">{subtext}</div>
-      </div>
-      <div className="pt-4 h-12 flex items-end gap-1">
-        {/* Simple Sparkline simulation */}
-        {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
-          <div key={i} className="flex-1 bg-green-500/20 rounded-t-sm group-hover:bg-green-500/40 transition-all" style={{ height: `${h}%` }} />
-        ))}
+      <div className={`text-xs font-bold ${color}`}>
+        {value >= 90 ? "OPTIMIZED" : value >= 50 ? "DECENT" : "POOR"}
       </div>
     </div>
   );
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const configs: any = {
+    PENDING: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    RUNNING: "bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse",
+    COMPLETED: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    FAILED: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+  };
+
+  return (
+    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${configs[status]}`}>
+      {status}
+    </span>
+  );
+}
+
+function getScoreColor(score: number) {
+  if (!score) return "text-zinc-500";
+  if (score >= 90) return "text-emerald-400";
+  if (score >= 50) return "text-amber-400";
+  return "text-rose-400";
+}

@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   description: "Monitor and optimize your web performance with ease.",
 };
 
+import { Toaster } from "sonner";
+import { QueryProvider } from "@/components/providers/query-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +33,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
     >
       <body className="bg-[#0B0E14]">
-        <DashboardLayout>{children}</DashboardLayout>
+        <QueryProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </QueryProvider>
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );

@@ -31,10 +31,17 @@ export class ProjectService {
   async findOne(id: string): Promise<Project | null> {
     return this.prisma.project.findUnique({
       where: { id },
+    });
+  }
+
+  async getAudits(projectId: string) {
+    return this.prisma.audit.findMany({
+      where: { projectId },
       include: {
-        audits: {
-          orderBy: { createdAt: 'desc' },
-        },
+        webVitals: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
