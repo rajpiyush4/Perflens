@@ -18,13 +18,20 @@ let ProjectService = class ProjectService {
         this.prisma = prisma;
     }
     async create(data) {
-        return this.prisma.project.create({
-            data: {
-                name: data.name,
-                url: data.url,
-                userId: data.userId,
-            },
-        });
+        try {
+            console.log('[ProjectService] Creating project with data:', data);
+            return await this.prisma.project.create({
+                data: {
+                    name: data.name,
+                    url: data.url,
+                    userId: data.userId,
+                },
+            });
+        }
+        catch (error) {
+            console.error('[ProjectService] CREATE ERROR:', error);
+            throw error;
+        }
     }
     async findAll(userId) {
         return this.prisma.project.findMany({

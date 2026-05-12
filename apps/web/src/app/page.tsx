@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { 
-  Activity, 
-  Clock, 
-  Globe, 
-  Zap, 
-  ShieldCheck, 
-  Search, 
+import {
+  Activity,
+  Clock,
+  Globe,
+  Zap,
+  ShieldCheck,
+  Search,
   AlertCircle,
   ExternalLink,
   ChevronRight,
@@ -17,17 +17,24 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { AuditDetailModal } from "@/components/dashboard/audit-detail-modal";
+import { AddProjectModal } from "@/components/dashboard/add-project-modal";
+import { useProject } from "../context/project-context";
 
 export default function DashboardPage() {
-  const projectId = "cmovh88ta00011skl9lh700ir"; // Our seeded project
+  const { activeProject } = useProject();
+  const [selectedAudit, setSelectedAudit] = React.useState<any>(null);
+  const [isAddProjectOpen, setIsAddProjectOpen] = React.useState(false);
 
   const { data: audits, isLoading } = useQuery({
-    queryKey: ["audits", projectId],
+    queryKey: ["audits", activeProject?.id],
     queryFn: async () => {
-      const response = await axios.get(`http://localhost:4000/projects/${projectId}/audits`);
+      if (!activeProject?.id) return [];
+      const response = await axios.get(`http://localhost:4000/projects/${activeProject.id}/audits`);
       return response.data;
     },
-    refetchInterval: 5000, // Poll every 5 seconds
+    enabled: !!activeProject?.id,
+    // refetchInterval: 5000, // Poll every 5 seconds
   });
 
   const latestAudit = audits?.find((a: any) => a.status === "COMPLETED") || audits?.[0];
@@ -88,32 +95,32 @@ export default function DashboardPage() {
 
         {/* Categories Grid */}
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MetricCard 
-            title="Accessibility" 
-            value={latestAudit?.accessibilityScore} 
-            icon={<ShieldCheck className="w-5 h-5" />} 
-            color="text-emerald-400" 
+          <MetricCard
+            title="Accessibility"
+            value={latestAudit?.accessibilityScore}
+            icon={<ShieldCheck className="w-5 h-5" />}
+            color="text-emerald-400"
             bgColor="bg-emerald-400/10"
           />
-          <MetricCard 
-            title="Best Practices" 
-            value={latestAudit?.bestPracticesScore} 
-            icon={<Zap className="w-5 h-5" />} 
-            color="text-amber-400" 
+          <MetricCard
+            title="Best Practices"
+            value={latestAudit?.bestPracticesScore}
+            icon={<Zap className="w-5 h-5" />}
+            color="text-amber-400"
             bgColor="bg-amber-400/10"
           />
-          <MetricCard 
-            title="SEO" 
-            value={latestAudit?.seoScore} 
-            icon={<Search className="w-5 h-5" />} 
-            color="text-purple-400" 
+          <MetricCard
+            title="SEO"
+            value={latestAudit?.seoScore}
+            icon={<Search className="w-5 h-5" />}
+            color="text-purple-400"
             bgColor="bg-purple-400/10"
           />
-          <MetricCard 
-            title="Avg. Response" 
-            value={latestAudit?.webVitals?.[0]?.tti ? `${(latestAudit.webVitals[0].tti / 1000).toFixed(1)}s` : "--"} 
-            icon={<Clock className="w-5 h-5" />} 
-            color="text-blue-400" 
+          <MetricCard
+            title="Avg. Response"
+            value={latestAudit?.webVitals?.tti ? `${(latestAudit.webVitals.tti / 1000).toFixed(1)}s` : "--"}
+            icon={<Clock className="w-5 h-5" />}
+            color="text-blue-400"
             bgColor="bg-blue-400/10"
           />
         </div>
@@ -146,7 +153,11 @@ export default function DashboardPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {audits?.map((audit: any) => (
-                <tr key={audit.id} className="hover:bg-white/[0.02] transition-colors group">
+                <tr
+                  key={audit.id}
+                  onClick={() => setSelectedAudit(audit)}
+                  className="hover:bg-white/[0.04] transition-all group cursor-pointer"
+                >
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium">{formatDistanceToNow(new Date(audit.createdAt), { addSuffix: true })}</div>
                     <div className="text-[10px] text-zinc-500 uppercase">Manual Trigger</div>
@@ -160,17 +171,17 @@ export default function DashboardPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
-                    {audit.webVitals?.[0]?.lcp ? `${(audit.webVitals[0].lcp / 1000).toFixed(2)}s` : "--"}
+                    {audit.webVitals?.lcp.toFixed(2) || "--"}
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
-                    {audit.webVitals?.[0]?.cls ? audit.webVitals[0].cls.toFixed(3) : "--"}
+                    {audit.webVitals?.cls.toFixed(3) || "--"}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-sm text-zinc-400">
-                        {audit.webVitals?.[0]?.tti ? `${(audit.webVitals[0].tti / 1000).toFixed(1)}s` : "--"}
+                        {audit.webVitals?.tti.toFixed(1) || "--"}
                       </span>
-                      <ExternalLink className="w-4 h-4 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
+                      <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                     </div>
                   </td>
                 </tr>
@@ -179,6 +190,22 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Audit Detail Modal */}
+      {selectedAudit && (
+        <AuditDetailModal
+          audit={selectedAudit}
+          onClose={() => setSelectedAudit(null)}
+        />
+      )}
+
+      {/* Add Project Modal */}
+      {isAddProjectOpen && (
+        <AddProjectModal
+          onClose={() => setIsAddProjectOpen(false)}
+          onOpen={isAddProjectOpen}
+        />
+      )}
     </div>
   );
 }

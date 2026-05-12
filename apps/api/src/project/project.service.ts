@@ -4,16 +4,22 @@ import { Project } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: { name: string; url: string; userId: string }): Promise<Project> {
-    return this.prisma.project.create({
-      data: {
-        name: data.name,
-        url: data.url,
-        userId: data.userId,
-      },
-    });
+    try {
+      console.log('[ProjectService] Creating project with data:', data);
+      return await this.prisma.project.create({
+        data: {
+          name: data.name,
+          url: data.url,
+          userId: data.userId,
+        },
+      });
+    } catch (error) {
+      console.error('[ProjectService] CREATE ERROR:', error);
+      throw error;
+    }
   }
 
   async findAll(userId: string): Promise<Project[]> {
