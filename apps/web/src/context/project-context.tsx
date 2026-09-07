@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface Project {
   id: string;
@@ -19,11 +20,12 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
+  const { data: session } = useSession();
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // SINGLE SOURCE OF TRUTH FOR USER ID
-  const userId = "cmovh88sp00001skllty8tgtf";
+
+  // DYNAMIC USER ID FROM NEXTAUTH SESSION (Fallback to seed userId if unauthenticated)
+  const userId = session?.user?.id || "cmovh88sp00001skllty8tgtf";
 
   return (
     <ProjectContext.Provider value={{ activeProject, setActiveProject, userId, isLoading, setIsLoading }}>

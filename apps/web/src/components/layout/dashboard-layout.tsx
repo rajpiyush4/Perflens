@@ -7,12 +7,19 @@ import axios from "axios";
 import { toast } from "sonner";
 import { AddProjectModal } from "../dashboard/add-project-modal";
 import { ProjectProvider, useProject } from "../../context/project-context";
+import { usePathname } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const pathname = usePathname();
+
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
+
   return (
     <ProjectProvider>
       <DashboardContent>{children}</DashboardContent>

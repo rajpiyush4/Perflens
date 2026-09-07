@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { NextAuthProvider } from "@/components/providers/session-provider";
 
 export default function RootLayout({
   children,
@@ -33,9 +34,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
     >
       <body className="bg-[#0B0E14]">
-        <QueryProvider>
-          <DashboardLayout>{children}</DashboardLayout>
-        </QueryProvider>
+        <NextAuthProvider>
+          <QueryProvider>
+            <DashboardLayout>{children}</DashboardLayout>
+          </QueryProvider>
+        </NextAuthProvider>
         <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>

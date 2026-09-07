@@ -16,12 +16,15 @@ import {
   Settings,
   Star,
   Monitor,
-  Plus
+  Plus,
+  LogOut,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useProject } from "../../context/project-context";
+import { useSession, signOut } from "next-auth/react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/" },
@@ -43,6 +46,7 @@ interface SidebarProps {
 
 export function Sidebar({ onAddProject }: SidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const { activeProject, setActiveProject, userId } = useProject();
 
   // Fetch real projects from API
@@ -165,21 +169,41 @@ export function Sidebar({ onAddProject }: SidebarProps) {
       </div>
 
       {/* Footer Profile */}
-      <div className="p-4 border-t border-white/5">
-        <button className="w-full flex items-center justify-between gap-3 rounded-2xl bg-white/[0.03] p-3 hover:bg-white/[0.06] transition-all ring-1 ring-white/5 group">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">
-              AR
+      <div className="p-4 border-t border-white/5 space-y-2">
+        {session?.user ? (
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.03] p-3 ring-1 ring-white/5 group">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white shadow-inner flex-shrink-0">
+                {session.user.name ? session.user.name.substring(0, 2).toUpperCase() : session.user.email?.substring(0, 2).toUpperCase() || "US"}
+              </div>
+              <div className="flex flex-col items-start overflow-hidden">
+                <span className="text-xs font-bold text-white truncate w-24">
+                  {session.user.name || "User"}
+                </span>
+                <span className="text-[10px] text-zinc-500 font-medium truncate w-24">
+                  {session.user.email}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col items-start overflow-hidden">
-              <span className="text-xs font-bold text-white truncate w-24">Arjun Raj</span>
-              <span className="text-[10px] text-zinc-500 font-medium">Pro Individual</span>
-            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              title="Sign Out"
+              className="p-1.5 hover:bg-rose-500/20 text-zinc-500 hover:text-rose-400 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <Settings className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
-        </button>
+        ) : (
+          <Link
+            href="/login"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-blue-600/20"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In / Register</span>
+          </Link>
+        )}
 
-        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-zinc-600 font-medium hover:text-zinc-400 cursor-pointer transition-colors">
+        <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-zinc-600 font-medium hover:text-zinc-400 cursor-pointer transition-colors">
           <Star className="w-3 h-3" />
           <span>Star project on GitHub</span>
         </div>
