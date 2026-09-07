@@ -34,7 +34,7 @@ function checkSystemHealth() {
 async function runAudit(url: string) {
   // Check health before starting
   checkSystemHealth();
-  
+
   console.log(`[Lighthouse] Starting audit for: ${url}`);
 
   const browser = await puppeteer.launch({
@@ -57,11 +57,12 @@ async function runAudit(url: string) {
     };
 
     const webVitals = {
-      lcp: lhr.audits['largest-contentful-paint'].numericValue,
-      fcp: lhr.audits['first-contentful-paint'].numericValue,
-      cls: lhr.audits['cumulative-layout-shift'].numericValue,
-      tti: lhr.audits.interactive.numericValue,
-      tbt: lhr.audits['total-blocking-time'].numericValue,
+      lcp: lhr.audits['largest-contentful-paint']?.numericValue ?? 0,
+      fcp: lhr.audits['first-contentful-paint']?.numericValue ?? 0,
+      cls: lhr.audits['cumulative-layout-shift']?.numericValue ?? 0,
+      tti: lhr.audits['interactive']?.numericValue ?? lhr.audits['interactive-time']?.numericValue ?? lhr.audits['total-blocking-time']?.numericValue ?? 0,
+      tbt: lhr.audits['total-blocking-time']?.numericValue ?? 0,
+      inp: lhr.audits['interaction-to-next-paint']?.numericValue ?? lhr.audits['experimental-interaction-to-next-paint']?.numericValue ?? 0,
     };
 
     return { scores, webVitals };
@@ -103,6 +104,7 @@ const worker = new Worker(
               cls: results.webVitals.cls,
               tti: results.webVitals.tti,
               tbt: results.webVitals.tbt,
+              inp: results.webVitals.inp,
             }
           }
         },

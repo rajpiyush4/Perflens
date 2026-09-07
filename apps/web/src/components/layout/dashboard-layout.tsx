@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sidebar } from "./sidebar";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 import { AddProjectModal } from "../dashboard/add-project-modal";
@@ -23,6 +23,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const [isAddProjectOpen, setIsAddProjectOpen] = React.useState(false);
   const { activeProject, setActiveProject } = useProject();
+  const queryClient = useQueryClient();
 
   // No longer hardcoded - we will use the context!
 
@@ -36,6 +37,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       toast.success("Audit successfully scheduled!", {
         description: `The worker is now scanning ${activeProject?.name}.`,
       });
+      if (activeProject?.id) {
+        queryClient.invalidateQueries({ queryKey: ["audits", activeProject.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
     onError: (error: any) => {
       toast.error("Failed to start audit", {

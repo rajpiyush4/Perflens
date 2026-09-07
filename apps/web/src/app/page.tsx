@@ -34,7 +34,11 @@ export default function DashboardPage() {
       return response.data;
     },
     enabled: !!activeProject?.id,
-    // refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: (query) => {
+      const data = query.state.data as any[];
+      const isRunning = data?.some((a: any) => a.status === "PENDING" || a.status === "RUNNING");
+      return isRunning ? 2000 : 10000;
+    },
   });
 
   const latestAudit = audits?.find((a: any) => a.status === "COMPLETED") || audits?.[0];
@@ -171,15 +175,15 @@ export default function DashboardPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
-                    {audit.webVitals?.lcp.toFixed(2) || "--"}
+                    {audit.webVitals?.lcp ? `${(audit.webVitals.lcp / 1000).toFixed(2)}s` : "--"}
                   </td>
                   <td className="px-6 py-4 text-sm text-zinc-400">
-                    {audit.webVitals?.cls.toFixed(3) || "--"}
+                    {audit.webVitals?.cls != null ? audit.webVitals.cls.toFixed(3) : "--"}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-sm text-zinc-400">
-                        {audit.webVitals?.tti.toFixed(1) || "--"}
+                        {audit.webVitals?.tti ? `${(audit.webVitals.tti / 1000).toFixed(1)}s` : "--"}
                       </span>
                       <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                     </div>

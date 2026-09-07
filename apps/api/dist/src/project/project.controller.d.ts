@@ -7,28 +7,28 @@ export declare class ProjectController {
         url: string;
         userId: string;
     }): Promise<{
-        id: string;
-        createdAt: Date;
-        name: string;
-        userId: string;
         url: string;
+        name: string;
+        id: string;
+        userId: string;
         environment: string;
+        createdAt: Date;
     }>;
     findAll(userId: string): Promise<{
-        id: string;
-        createdAt: Date;
-        name: string;
-        userId: string;
         url: string;
+        name: string;
+        id: string;
+        userId: string;
         environment: string;
+        createdAt: Date;
     }[]>;
     findOne(id: string): Promise<{
-        id: string;
-        createdAt: Date;
-        name: string;
-        userId: string;
         url: string;
+        name: string;
+        id: string;
+        userId: string;
         environment: string;
+        createdAt: Date;
     } | null>;
     getAudits(id: string): Promise<({
         webVitals: {
@@ -43,12 +43,12 @@ export declare class ProjectController {
         } | null;
     } & {
         id: string;
+        createdAt: Date;
         projectId: string;
         status: import("@prisma/client").$Enums.AuditStatus;
         performanceScore: number | null;
         seoScore: number | null;
         accessibilityScore: number | null;
         bestPracticesScore: number | null;
-        createdAt: Date;
     })[]>;
 }

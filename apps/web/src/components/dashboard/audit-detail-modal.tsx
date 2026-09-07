@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { 
-  Zap, 
-  ShieldCheck, 
-  Search, 
-  Clock, 
+import {
+  Zap,
+  ShieldCheck,
+  Search,
+  Clock,
   CheckCircle2,
   AlertCircle,
   BarChart3,
@@ -26,7 +26,7 @@ interface AuditDetailModalProps {
 export function AuditDetailModal({ audit, onClose }: AuditDetailModalProps) {
   if (!audit) return null;
 
-  const vitals = audit.webVitals?.[0] || {};
+  const vitals = (Array.isArray(audit.webVitals) ? audit.webVitals[0] : audit.webVitals) || {};
 
   return (
     <Dialog open={!!audit} onOpenChange={(open) => !open && onClose()}>
@@ -63,11 +63,11 @@ export function AuditDetailModal({ audit, onClose }: AuditDetailModalProps) {
               </h3>
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Mobile Emulation</span>
             </div>
-            
+
             <div className="p-8 rounded-3xl space-y-12 bg-white/[0.02] border border-white/5 shadow-inner">
               <div className="relative pt-8 pb-4">
                 <div className="absolute top-1/2 left-0 w-full h-px bg-white/10 -translate-y-1/2" />
-                
+
                 <div className="relative flex justify-between">
                   <TimelineMarker label="FCP" value={vitals.fcp} max={5000} />
                   <TimelineMarker label="LCP" value={vitals.lcp} max={5000} />
@@ -142,7 +142,9 @@ function TimelineMarker({ label, value, max }: any) {
     <div className="flex flex-col items-center gap-2">
       <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">{label}</div>
       <div className="h-4 w-4 rounded-full bg-blue-500 ring-4 ring-blue-500/10 z-10" />
-      <div className="text-xs font-bold text-white">{(value / 1000).toFixed(1)}s</div>
+      <div className="text-xs font-bold text-white">
+        {typeof value === "number" ? `${(value / 1000).toFixed(1)}s` : "--"}
+      </div>
     </div>
   );
 }
