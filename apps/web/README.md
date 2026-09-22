@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Perflens Web Client (`apps/web`)
 
-## Getting Started
+The frontend web application for Perflens — a modern, dark-mode performance analytics dashboard built with **Next.js 16**, **React 19**, and **Tailwind CSS v4**.
 
-First, run the development server:
+---
+
+## 🎯 Features
+
+- **Performance Analytics Dashboard**: Visualizes Lighthouse scores (Performance, Accessibility, Best Practices, SEO) and Core Web Vitals (LCP, FCP, CLS, TTI, TBT, INP) using **Recharts**.
+- **Live Audit Status**: Real-time polling and updates for running performance audits powered by **TanStack React Query**.
+- **Authentication System**: Email and credentials authentication powered by **NextAuth.js** and Prisma adapter.
+- **Projects Management**: Seamless UI to create projects, configure target URLs, view audit histories, and trigger new scans.
+- **State Management**: Client-side ui states managed via **Zustand**.
+
+---
+
+## ⚡ Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **UI & Styling**: React 19, Tailwind CSS v4, Radix UI / Shadcn, Lucide React icons, Sonner toasts
+- **Data Fetching**: TanStack React Query v5 & Axios
+- **State Management**: Zustand
+- **Charts**: Recharts
+- **Authentication**: NextAuth.js v4 with `@auth/prisma-adapter`
+
+---
+
+## 🛠️ Scripts
 
 ```bash
+# Start Next.js development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build production bundle
+npm run build
+
+# Start production server
+npm run start
+
+# Run ESLint check
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📂 Directory Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                  # Next.js App Router (pages, API routes, layouts)
+│   ├── (auth)/           # Authentication routes (login, register)
+│   ├── dashboard/        # Dashboard & analytics pages
+│   ├── projects/         # Project management pages
+│   └── api/              # Next.js API routes / NextAuth handler
+├── components/           # UI components (charts, dialogs, cards, navigation)
+├── context/              # React Context providers (QueryClientProvider, AuthProvider)
+├── lib/                  # Utility functions, API clients, Prisma instance
+└── types/                # Component & page type definitions
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ⚙️ Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a `.env` file inside `apps/web` or root:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+NEXTAUTH_SECRET="your-super-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+DATABASE_URL="postgresql://perflens_user:perflens_password@localhost:5432/perflens_db?schema=public"
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+```

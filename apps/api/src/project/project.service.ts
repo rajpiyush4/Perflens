@@ -51,4 +51,34 @@ export class ProjectService {
       },
     });
   }
+
+  async update(id: string, data: { name?: string; url?: string; environment?: string }): Promise<Project> {
+    return this.prisma.project.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: string): Promise<Project> {
+    return this.prisma.$transaction(async (tx) => {
+      // Find all audit IDs for this project
+      const audits = await tx.audit.findMany({
+        where: { projectId: id },
+        select: { id: true },
+      });
+      const auditIds = audits.map((a) => a.id);
+
+      if (auditIds.length > 0) {
+        await tx.webVitals.deleteMany({ where: { auditId: { in: auditIds } } });
+        await tx.bundleAnalysis.deleteMany({ where: { auditId: { in: auditIds } } });
+        await tx.audit.deleteMany({ where: { projectId: id } });
+      }
+
+      await tx.alert.deleteMany({ where: { projectId: id } });
+
+      return tx.project.delete({
+        where: { id },
+      });
+    });
+  }
 }

@@ -23,12 +23,18 @@ export declare class ProjectService {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
         projectId: string;
         status: import("@prisma/client").$Enums.AuditStatus;
         performanceScore: number | null;
         seoScore: number | null;
         accessibilityScore: number | null;
         bestPracticesScore: number | null;
+        createdAt: Date;
     })[]>;
+    update(id: string, data: {
+        name?: string;
+        url?: string;
+        environment?: string;
+    }): Promise<Project>;
+    remove(id: string): Promise<Project>;
 }

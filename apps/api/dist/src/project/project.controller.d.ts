@@ -7,26 +7,26 @@ export declare class ProjectController {
         url: string;
         userId: string;
     }): Promise<{
-        url: string;
         name: string;
         id: string;
         userId: string;
+        url: string;
         environment: string;
         createdAt: Date;
     }>;
     findAll(userId: string): Promise<{
-        url: string;
         name: string;
         id: string;
         userId: string;
+        url: string;
         environment: string;
         createdAt: Date;
     }[]>;
     findOne(id: string): Promise<{
-        url: string;
         name: string;
         id: string;
         userId: string;
+        url: string;
         environment: string;
         createdAt: Date;
     } | null>;
@@ -51,4 +51,24 @@ export declare class ProjectController {
         accessibilityScore: number | null;
         bestPracticesScore: number | null;
     })[]>;
+    update(id: string, updateProjectDto: {
+        name?: string;
+        url?: string;
+        environment?: string;
+    }): Promise<{
+        name: string;
+        id: string;
+        userId: string;
+        url: string;
+        environment: string;
+        createdAt: Date;
+    }>;
+    remove(id: string): Promise<{
+        name: string;
+        id: string;
+        userId: string;
+        url: string;
+        environment: string;
+        createdAt: Date;
+    }>;
 }

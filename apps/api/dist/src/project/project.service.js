@@ -60,6 +60,30 @@ let ProjectService = class ProjectService {
             },
         });
     }
+    async update(id, data) {
+        return this.prisma.project.update({
+            where: { id },
+            data,
+        });
+    }
+    async remove(id) {
+        return this.prisma.$transaction(async (tx) => {
+            const audits = await tx.audit.findMany({
+                where: { projectId: id },
+                select: { id: true },
+            });
+            const auditIds = audits.map((a) => a.id);
+            if (auditIds.length > 0) {
+                await tx.webVitals.deleteMany({ where: { auditId: { in: auditIds } } });
+                await tx.bundleAnalysis.deleteMany({ where: { auditId: { in: auditIds } } });
+                await tx.audit.deleteMany({ where: { projectId: id } });
+            }
+            await tx.alert.deleteMany({ where: { projectId: id } });
+            return tx.project.delete({
+                where: { id },
+            });
+        });
+    }
 };
 exports.ProjectService = ProjectService;
 exports.ProjectService = ProjectService = __decorate([

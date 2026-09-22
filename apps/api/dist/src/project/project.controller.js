@@ -32,6 +32,12 @@ let ProjectController = class ProjectController {
     getAudits(id) {
         return this.projectService.getAudits(id);
     }
+    update(id, updateProjectDto) {
+        return this.projectService.update(id, updateProjectDto);
+    }
+    remove(id) {
+        return this.projectService.remove(id);
+    }
 };
 exports.ProjectController = ProjectController;
 __decorate([
@@ -62,6 +68,21 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ProjectController.prototype, "getAudits", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ProjectController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProjectController.prototype, "remove", null);
 exports.ProjectController = ProjectController = __decorate([
     (0, common_1.Controller)('projects'),
     __metadata("design:paramtypes", [project_service_1.ProjectService])
